@@ -7,3 +7,12 @@
 
 未完待续...  
 欢迎各位参与开发！  
+
+主要分支是master  
+基础的地址保存在utils/address.py中  
+基础的属性OFFSET和从内存读取属性的方法保存在utils/fields.py中  
+基础的数据类与数据信息获取方法保存在utils/functions.py中  
+
+testmain.py提供了一点点测试调用的实例  
+
+当前的底层开发尚未完全，欢迎随时补充建议！  
