@@ -7,7 +7,7 @@ y: y坐标 float
 xspeed: x方向速度 float
 yspeed: y方向速度 float
 gravity: 重力 float
-direction: 方向（暂时无效）
+direction: 方向 int 1为向右，255为向左
 ----------------------------------------
 PlayerKeys类用于存储玩家的按键信息，包含以下属性：
 keypressed_left: 左键是否按下 bool
@@ -184,6 +184,9 @@ class Player:
     def __str__(self):
         return f'Player(p={self.p}, index={self.index}, x_pressed={self.x_pressed}, y_pressed={self.y_pressed}, position={self.position}, framedata={self.framedata}, frameflag={self.frameflag}, current_sequence={self.current_sequence}, elapsed_in_subseq={self.elapsed_in_subseq}, health={self.health}, spirit={self.spirit}, untech={self.untech}, card={self.card})'
 
+    def update_playerinfo(self, add_bmgr_px):
+        update_playerinfo(self, add_bmgr_px)
+
 
 class Keys:
     def __init__(self, reset_pos, save_pos, reset_skills, display_states):
@@ -248,7 +251,7 @@ def update_position(player):
         fields.get_float(player.p, fields.CF_X_SPEED),
         fields.get_float(player.p, fields.CF_Y_SPEED),
         fields.get_float(player.p, fields.CF_GRAVITY),
-        fields.get_ptr(player.p, fields.CF_DIR)
+        int.from_bytes(fields.get_char(player.p, fields.CF_DIR), byteorder='little')
     )
 
 

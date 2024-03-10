@@ -77,12 +77,12 @@ def to_dict(player1, player2):
 def to_csv(csv_path):
     # TODO - 需要一个监视主进程的方法，在游戏启动的时候唤醒
     if fields.update_proc():
-        while fields.check_scene() == 5:
+        while fields.check_scene() == 0x05 or fields.check_scene() == 0x09:
             fields.update_pbattleMgr()
             player1 = functions.Player()
             player2 = functions.Player()
-            functions.update_playerinfo(player1, ADDR_BMGR_P1)
-            functions.update_playerinfo(player2, ADDR_BMGR_P2)
+            player1.update_playerinfo(ADDR_BMGR_P1)
+            player2.update_playerinfo(ADDR_BMGR_P2)
             frame = to_dict(player1, player2)
             df_frame = pd.DataFrame([frame])
             with open(csv_path, "a") as f:

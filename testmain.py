@@ -16,11 +16,11 @@ if fields.update_proc():
         fields.update_pbattleMgr()
         player1 = functions.Player()
         player2 = functions.Player()
-        functions.update_playerinfo(player1, ADDR_BMGR_P1)
-        functions.update_playerinfo(player2, ADDR_BMGR_P2)
+        player1.update_playerinfo(ADDR_BMGR_P1)
+        player2.update_playerinfo(ADDR_BMGR_P2)
         frame = replay_to_data.to_dict(player1, player2)
         df_frame = pd.DataFrame([frame])
-        with open(r"./replay_csv/test.csv", "a") as f:
+        with open(r"./replay_csv/test1.csv", "a") as f:
             df_frame.to_csv(f, header=f.tell() == 0, index=False)
         time.sleep(1 / 30)
     print("Battle Ended")
