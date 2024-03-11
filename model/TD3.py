@@ -58,12 +58,11 @@ env = gym.make(args.env_name)
 state_dim = env.observation_space.shape[0]
 action_dim = env.action_space.shape[0]
 max_action = float(env.action_space.high[0])
-print('state_dim:', state_dim)
-print('action_dim:', action_dim)
-print('max_action:', max_action)
+
 min_Val = torch.tensor(1e-7).float().to(device) # min value
 
-directory = './exp' + script_name + args.env_name +'./'
+# directory = './exp' + script_name + args.env_name +'./'
+directory = './model_pths/'
 '''
 Implementation of TD3 with pytorch 
 Original paper: https://arxiv.org/abs/1802.09477
@@ -117,7 +116,7 @@ class Actor(nn.Module):
     def forward(self, state):
         a = F.relu(self.fc1(state))
         a = F.relu(self.fc2(a))
-        a = torch.tanh(self.fc3(a)) * self.max_action
+        a = torch.sigmoid(self.fc3(a)) * self.max_action
         return a
 
 
@@ -166,10 +165,7 @@ class TD3():
 
     def select_action(self, state):
         state = torch.tensor(state.reshape(1, -1)).float().to(device)
-        action_probs = self.actor(state)
-        dist = torch.distributions.Bernoulli(action_probs)
-        action = dist.sample()
-        return action.cpu().numpy()[0]
+        return self.actor(state).cpu().data.numpy().flatten()
 
     def update(self, num_iteration):
 
@@ -189,7 +185,8 @@ class TD3():
             noise = torch.ones_like(action).data.normal_(0, args.policy_noise).to(device)
             noise = noise.clamp(-args.noise_clip, args.noise_clip)
             next_action = (self.actor_target(next_state) + noise)
-            next_action = next_action.clamp(-self.max_action, self.max_action)
+            # next_action = next_action.clamp(-self.max_action, self.max_action)
+            next_action = torch.sigmoid(next_action) * self.max_action
 
             # Compute target Q-value:
             target_Q1 = self.critic_1_target(next_state, next_action)

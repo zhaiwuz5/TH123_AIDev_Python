@@ -3,6 +3,7 @@ from torch.utils.data import Dataset, DataLoader
 import argparse
 from model import TD3
 import pandas as pd
+import numpy as np
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 parser = argparse.ArgumentParser()
@@ -36,15 +37,22 @@ parser.add_argument('--max_episode', default=2000, type=int)
 parser.add_argument('--print_log', default=5, type=int)
 args = parser.parse_args()
 
+
 # 定义数据集
 class FightingGameDataset(Dataset):
     def __init__(self, csv_file):
         self.dataframe = pd.read_csv(csv_file)
-        print(self.dataframe['p1_comb'].unique())
-        self.dataframe['p1_left'] = int(self.dataframe['p1_left'])
-        self.dataframe['p1_right'] = int(self.dataframe['p1_right'])
-        self.dataframe['p1_up'] = int(self.dataframe['p1_up'])
-        self.dataframe['p1_down'] = int(self.dataframe['p1_down'])
+        # print(self.dataframe['p1_comb'].unique())
+        # 将所有动作操作转换为从0开始的整数
+        self.dataframe['p1_left'] = self.dataframe['p1_left'].astype(int)
+        self.dataframe['p1_right'] = self.dataframe['p1_right'].astype(int)
+        self.dataframe['p1_up'] = self.dataframe['p1_up'].astype(int)
+        self.dataframe['p1_down'] = self.dataframe['p1_down'].astype(int)
+
+        self.dataframe['p2_left'] = self.dataframe['p2_left'].astype(int)
+        self.dataframe['p2_right'] = self.dataframe['p2_right'].astype(int)
+        self.dataframe['p2_up'] = self.dataframe['p2_up'].astype(int)
+        self.dataframe['p2_down'] = self.dataframe['p2_down'].astype(int)
 
         self.dataframe.loc[self.dataframe['p1_a'] > 0, 'p1_a'] = 1
         self.dataframe.loc[self.dataframe['p1_b'] > 0, 'p1_b'] = 1
@@ -53,45 +61,77 @@ class FightingGameDataset(Dataset):
         self.dataframe.loc[self.dataframe['p1_ab'] > 0, 'p1_ab'] = 1
         self.dataframe.loc[self.dataframe['p1_bc'] > 0, 'p1_bc'] = 1
 
-        self.dataframe.loc[self.dataframe['p1_comb'] == 139296, 'p1_comb'] = 0
-        self.dataframe.loc[self.dataframe['p1_comb'] == 139296*2, 'p1_comb'] = 1
-        self.dataframe.loc[self.dataframe['p1_comb'] == 32, 'p1_comb'] = 2
-        self.dataframe.loc[self.dataframe['p1_comb'] == 32*2, 'p1_comb'] = 3
-        self.dataframe.loc[self.dataframe['p1_comb'] == 536870912, 'p1_comb'] = 4
-        self.dataframe.loc[self.dataframe['p1_comb'] == 536870912*2, 'p1_comb'] = 5
-        self.dataframe.loc[self.dataframe['p1_comb'] == 2, 'p1_comb'] = 6
-        self.dataframe.loc[self.dataframe['p1_comb'] == 2*2, 'p1_comb'] = 7
-        self.dataframe.loc[self.dataframe['p1_comb'] == 514, 'p1_comb'] = 8
-        self.dataframe.loc[self.dataframe['p1_comb'] == 514*2, 'p1_comb'] = 9
+        self.dataframe.loc[self.dataframe['p2_a'] > 0, 'p2_a'] = 1
+        self.dataframe.loc[self.dataframe['p2_b'] > 0, 'p2_b'] = 1
+        self.dataframe.loc[self.dataframe['p2_c'] > 0, 'p2_c'] = 1
+        self.dataframe.loc[self.dataframe['p2_d'] > 0, 'p2_d'] = 1
+        self.dataframe.loc[self.dataframe['p2_ab'] > 0, 'p2_ab'] = 1
+        self.dataframe.loc[self.dataframe['p2_bc'] > 0, 'p2_bc'] = 1
+
+        self.dataframe.loc[self.dataframe['p1_comb'] == 139296, 'p1_comb'] = 1
+        self.dataframe.loc[self.dataframe['p1_comb'] == 139296*2, 'p1_comb'] = 2
+        self.dataframe.loc[self.dataframe['p1_comb'] == 32, 'p1_comb'] = 3
+        self.dataframe.loc[self.dataframe['p1_comb'] == 32*2, 'p1_comb'] = 4
+        self.dataframe.loc[self.dataframe['p1_comb'] == 536870912, 'p1_comb'] = 5
+        self.dataframe.loc[self.dataframe['p1_comb'] == 536870912*2, 'p1_comb'] = 6
+        self.dataframe.loc[self.dataframe['p1_comb'] == 2, 'p1_comb'] = 7
+        self.dataframe.loc[self.dataframe['p1_comb'] == 2*2, 'p1_comb'] = 8
+        self.dataframe.loc[self.dataframe['p1_comb'] == 514, 'p1_comb'] = 9
+        self.dataframe.loc[self.dataframe['p1_comb'] == 514*2, 'p1_comb'] = 10
+
+        self.dataframe.loc[self.dataframe['p2_comb'] == 139296, 'p2_comb'] = 1
+        self.dataframe.loc[self.dataframe['p2_comb'] == 139296*2, 'p2_comb'] = 2
+        self.dataframe.loc[self.dataframe['p2_comb'] == 32, 'p2_comb'] = 3
+        self.dataframe.loc[self.dataframe['p2_comb'] == 32*2, 'p2_comb'] = 4
+        self.dataframe.loc[self.dataframe['p2_comb'] == 536870912, 'p2_comb'] = 5
+        self.dataframe.loc[self.dataframe['p2_comb'] == 536870912*2, 'p2_comb'] = 6
+        self.dataframe.loc[self.dataframe['p2_comb'] == 2, 'p2_comb'] = 7
+        self.dataframe.loc[self.dataframe['p2_comb'] == 2*2, 'p2_comb'] = 8
+        self.dataframe.loc[self.dataframe['p2_comb'] == 514, 'p2_comb'] = 9
+        self.dataframe.loc[self.dataframe['p2_comb'] == 514*2, 'p2_comb'] = 10
+
+        # 构建奖励参数和结束标志
+        self.dataframe['reward'] = self.dataframe['p1_hp'] - self.dataframe['p2_hp']
+        self.dataframe['done'] = (self.dataframe['p1_hp'] <= 0) | (self.dataframe['p2_hp'] <= 0).astype(int)
 
     def __len__(self):
         return len(self.dataframe)
 
     def __getitem__(self, idx):
         row = self.dataframe.iloc[idx]
-        state = row[['p1_x', 'p1_y', 'p1_x_speed', 'p1_y_speed', 'p1_gravity', 'p1_dir', 'p1_hp', 'p1_spirit', 'p1_untech', 'p1_card']].values
+        state = row[['p1_x', 'p1_y', 'p1_x_speed', 'p1_y_speed', 'p1_gravity', 'p1_dir', 'p1_hp', 'p1_spirit', 'p1_untech', 'p1_card',
+                     'p2_x', 'p2_y', 'p2_x_speed', 'p2_y_speed', 'p2_gravity', 'p2_dir', 'p2_hp', 'p2_spirit', 'p2_untech', 'p2_card']].values
         action = row[['p1_left', 'p1_right', 'p1_up', 'p1_down', 'p1_a', 'p1_b', 'p1_c', 'p1_d', 'p1_ab', 'p1_bc', 'p1_comb']].values
-        return state, action
+        reward = row['reward']
+        done = row['done']
+        return state, action, reward, done
 
-# 创建数据集和数据加载器
+
+# 创建数据集和数据加载器x
 dataset = FightingGameDataset('replay_csv/test1.csv')
-dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
+# 所有可能出现的动作数量
+max_action = torch.tensor([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 11]).to(device)
+state, action, reward, done = dataset[0]
+state_dim = state.shape[0]
+action_dim = action.shape[0]
 
 
-agent = TD3(state_dim, action_dim, max_action)
+agent = TD3.TD3(state_dim, action_dim, max_action)
 ep_r = 0
 
 for i in range(args.num_iteration):
-    state = env.reset()
-    for t in range(2000):
-
+    state, action, reward, done = dataset[0]
+    for t in range(len(dataset)):
+        state = state.astype(np.float32)
         action = agent.select_action(state)
-        action = action + np.random.normal(0, args.exploration_noise, size=env.action_space.shape[0])
-        action = action.clip(env.action_space.low, env.action_space.high)
-        next_state, reward, done, info = env.step(action)
+        action = action + np.random.normal(0, args.exploration_noise, size=action.shape)
+
+        # 下一个状态
+        next_state, next_action, reward, done = dataset[t + 1]
+        next_state = next_state.astype(np.float32)
         ep_r += reward
-        if args.render and i >= args.render_interval: env.render()
-        agent.memory.push((state, next_state, action, reward, np.float(done)))
+
+        agent.memory.push((state, next_state, action, reward, np.float32(done)))
         if i + 1 % 10 == 0:
             print('Episode {},  The memory size is {} '.format(i, len(agent.memory.storage)))
         if len(agent.memory.storage) >= args.capacity - 1:

@@ -162,6 +162,16 @@ class Position:
         return f'Position(x={self.x}, y={self.y}, xspeed={self.xspeed}, yspeed={self.yspeed}, gravity={self.gravity}, direction={self.direction})'
 
 
+class FrameData:
+    def __init__(self, frameflag, current_sequence, elapsed_in_subseq):
+        self.frameflag = frameflag
+        self.current_sequence = current_sequence
+        self.elapsed_in_subseq = elapsed_in_subseq
+
+    def __str__(self):
+        return f'FrameData(frameflag={self.frameflag}, current_sequence={self.current_sequence}, elapsed_in_subseq={self.elapsed_in_subseq})'
+
+
 class Player:
     def __init__(self):
         self.p = None
