@@ -26,7 +26,7 @@ parser.add_argument('--learning_rate', default=3e-4, type=float)
 parser.add_argument('--gamma', default=0.99, type=int) # discounted factor
 parser.add_argument('--capacity', default=50000, type=int) # replay buffer size
 parser.add_argument('--num_iteration', default=100000, type=int) #  num of  games
-parser.add_argument('--batch_size', default=1, type=int) # mini batch size
+parser.add_argument('--batch_size', default=100, type=int) # mini batch size
 parser.add_argument('--seed', default=1, type=int)
 
 # optional parameters
@@ -117,7 +117,6 @@ class Actor(nn.Module):
         a = F.relu(self.fc1(state))
         a = F.relu(self.fc2(a))
         a = torch.sigmoid(self.fc3(a)) * self.max_action
-        a = torch.floor(a)
         return a
 
 
@@ -166,7 +165,8 @@ class TD3():
 
     def select_action(self, state):
         state = torch.tensor(state.reshape(1, -1)).float().to(device)
-        return self.actor(state).cpu().data.numpy().flatten()
+        action = torch.floor(self.actor(state))
+        return action.cpu().data.numpy().flatten()
 
     def update(self, num_iteration):
 
@@ -188,7 +188,7 @@ class TD3():
             next_action = (self.actor_target(next_state) + noise)
             # next_action = next_action.clamp(-self.max_action, self.max_action)
             # next_action = torch.sigmoid(next_action) * self.max_action
-            next_action = torch.floor(next_action)
+            # next_action = torch.floor(next_action)
 
             # Compute target Q-value:
             target_Q1 = self.critic_1_target(next_state, next_action)
@@ -234,7 +234,7 @@ class TD3():
         self.num_critic_update_iteration += 1
         self.num_training += 1
 
-    def save(self):
+    def save(self, directory):
         torch.save(self.actor.state_dict(), directory+'actor.pth')
         torch.save(self.actor_target.state_dict(), directory+'actor_target.pth')
         torch.save(self.critic_1.state_dict(), directory+'critic_1.pth')
@@ -245,7 +245,7 @@ class TD3():
         print("Model has been saved...")
         print("====================================")
 
-    def load(self):
+    def load(self, directory):
         self.actor.load_state_dict(torch.load(directory + 'actor.pth'))
         self.actor_target.load_state_dict(torch.load(directory + 'actor_target.pth'))
         self.critic_1.load_state_dict(torch.load(directory + 'critic_1.pth'))
