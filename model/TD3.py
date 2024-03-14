@@ -117,6 +117,7 @@ class Actor(nn.Module):
         a = F.relu(self.fc1(state))
         a = F.relu(self.fc2(a))
         a = torch.sigmoid(self.fc3(a)) * self.max_action
+        a = torch.floor(a)
         return a
 
 
@@ -140,7 +141,7 @@ class Critic(nn.Module):
 
 class TD3():
     def __init__(self, state_dim, action_dim, max_action):
-
+        max_action = torch.tensor(max_action).to(device)
         self.actor = Actor(state_dim, action_dim, max_action).to(device)
         self.actor_target = Actor(state_dim, action_dim, max_action).to(device)
         self.critic_1 = Critic(state_dim, action_dim).to(device)
@@ -186,7 +187,8 @@ class TD3():
             noise = noise.clamp(-args.noise_clip, args.noise_clip)
             next_action = (self.actor_target(next_state) + noise)
             # next_action = next_action.clamp(-self.max_action, self.max_action)
-            next_action = torch.sigmoid(next_action) * self.max_action
+            # next_action = torch.sigmoid(next_action) * self.max_action
+            next_action = torch.floor(next_action)
 
             # Compute target Q-value:
             target_Q1 = self.critic_1_target(next_state, next_action)

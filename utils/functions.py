@@ -280,17 +280,17 @@ def update_keys(player):
     #     fields.get_int(player.keystate, 4 * 7)
     # )
     player.playerkeys = PlayerKeys(
-        fields.get_int(player.keymap_p, 0) < 0,
-        fields.get_int(player.keymap_p, 0) > 0,
-        fields.get_int(player.keymap_p, 4) < 0,
-        fields.get_int(player.keymap_p, 4) > 0,
+        float(fields.get_int(player.keymap_p, 0) < 0),
+        float(fields.get_int(player.keymap_p, 0) > 0),
+        float(fields.get_int(player.keymap_p, 4) < 0),
+        float(fields.get_int(player.keymap_p, 4) > 0),
 
-        fields.get_int(player.keymap_p, 4 * 2),
-        fields.get_int(player.keymap_p, 4 * 3),
-        fields.get_int(player.keymap_p, 4 * 4),
-        fields.get_int(player.keymap_p, 4 * 5),
-        fields.get_int(player.keymap_p, 4 * 6),
-        fields.get_int(player.keymap_p, 4 * 7),
+        float(fields.get_int(player.keymap_p, 4 * 2) > 0),
+        float(fields.get_int(player.keymap_p, 4 * 3) > 0),
+        float(fields.get_int(player.keymap_p, 4 * 4) > 0),
+        float(fields.get_int(player.keymap_p, 4 * 5) > 0),
+        float(fields.get_int(player.keymap_p, 4 * 6) > 0),
+        float(fields.get_int(player.keymap_p, 4 * 7) > 0),
         fields.get_int(player.p, fields.CF_PRESSED_COMBINATION)
     )
 

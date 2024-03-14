@@ -16,6 +16,7 @@ from utils import functions, fields
 import time
 import json
 import pandas as pd
+import numpy as np
 
 
 ADDR_BMGR_P1 = 0x0C
@@ -72,6 +73,12 @@ def to_dict(player1, player2):
         "p2_untech": player2.untech,
         "p2_card": player2.card
     }
+
+
+def transform_to_input(frame):
+    state = [frame['p1_x'], frame['p1_y'], frame['p1_x_speed'], frame['p1_y_speed'], frame['p1_gravity'], frame['p1_dir'], frame['p1_hp'], frame['p1_spirit'], frame['p1_untech'], frame['p1_card'],
+            frame['p2_x'], frame['p2_y'], frame['p2_x_speed'], frame['p2_y_speed'], frame['p2_gravity'], frame['p2_dir'], frame['p2_hp'], frame['p2_spirit'], frame['p2_untech'], frame['p2_card']]
+    return np.array(state)
 
 
 def to_csv(csv_path):

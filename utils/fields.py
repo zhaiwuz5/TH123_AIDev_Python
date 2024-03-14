@@ -178,6 +178,7 @@ hwnd = None
 proc = None
 g_pbattleMgr = None
 processID = None # 一个不可能的进程id
+scene = 0 # 场景号
 # 获取句柄和进程
 def check_memory(address):
     # 定义MEMORY_BASIC_INFORMATION结构体
@@ -238,6 +239,7 @@ def check_scene():
 
     return: uint场景号
     """
+    global scene
     buffer = ctypes.c_uint(0)
     bytesRead = ctypes.c_ulong(0)
     ReadProcessMemory(proc, address.SCENEID, ctypes.byref(buffer), 1, ctypes.byref(bytesRead))

@@ -123,9 +123,11 @@ for i in range(args.num_iteration):
     state, action, reward, done = dataset[0]
     for t in range(len(dataset)):
         state = state.astype(np.float32)
-        action = agent.select_action(state)
-        action = action + np.random.normal(0, args.exploration_noise, size=action.shape)
+        # 如果是实时训练，那么就使用agent的选择动作
+        # action = agent.select_action(state)
+        # action = action + np.random.normal(0, args.exploration_noise, size=action.shape)
 
+        action = action.astype(np.float32)
         # 下一个状态
         next_state, next_action, reward, done = dataset[t + 1]
         next_state = next_state.astype(np.float32)
