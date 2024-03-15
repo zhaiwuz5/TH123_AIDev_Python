@@ -37,7 +37,7 @@ parser.add_argument('--render', default=False, type=bool) # show UI or not
 parser.add_argument('--log_interval', default=50, type=int) #
 parser.add_argument('--load', default=False, type=bool) # load model
 parser.add_argument('--render_interval', default=100, type=int) # after render_interval, the env.render() will work
-parser.add_argument('--policy_noise', default=0.2, type=float)
+parser.add_argument('--policy_noise', default=0.3, type=float)
 parser.add_argument('--noise_clip', default=0.5, type=float)
 parser.add_argument('--policy_delay', default=2, type=int)
 parser.add_argument('--exploration_noise', default=0.1, type=float)
@@ -165,7 +165,7 @@ class TD3():
 
     def select_action(self, state):
         state = torch.tensor(state.reshape(1, -1)).float().to(device)
-        action = torch.floor(self.actor(state))
+        action = torch.round(self.actor(state))
         return action.cpu().data.numpy().flatten()
 
     def update(self, num_iteration):

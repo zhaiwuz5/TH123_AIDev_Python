@@ -25,8 +25,8 @@ win.set_focus()
 keymgr = keymanager.KeyManager(win)
 player1 = functions.Player()
 player2 = functions.Player()
-agent_p1 = TD3.TD3(20, 11, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10])
-agent_p1.load(pre_model_path)
+# agent_p1 = TD3.TD3(20, 11, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10])
+# agent_p1.load(pre_model_path)
 agent_p2 = TD3.TD3(20, 11, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10])
 agent_p2.load(model_path)
 
@@ -65,7 +65,7 @@ while fields.update_proc():
             keymgr.send_z()
             keymgr.send_z()
 
-        while fields.check_scene() == 5 or fields.check_scene() == 13:
+        while fields.check_scene() == 5 or fields.check_scene() == 13 or fields.check_scene() == 14:
             start_time = time.time()
             fields.update_pbattleMgr()
             player1.update_playerinfo(ADDR_BMGR_P1)
@@ -79,19 +79,19 @@ while fields.update_proc():
             # print(ep_r_p2)
             done = float((frame['p1_hp'] <= 0) | (frame['p2_hp'] <= 0))
             if i > 100000:
-                action_p1 = agent_p1.select_action(state)
+                # action_p1 = agent_p1.select_action(state)
                 action_p2 = agent_p2.select_action(state)
             else:
                 max_action = [1,1,1,1,1,1,1,1,1,1,10]
                 action_p1 = [random.randint(0, action) for action in max_action]
                 action_p2 = [random.randint(0, action) for action in max_action]
 
-            agent_p1.memory.push((previous_state, state, previous_action_p1, previous_reward_p1, done))
+            # agent_p1.memory.push((previous_state, state, previous_action_p1, previous_reward_p1, done))
             agent_p2.memory.push((previous_state, state, previous_action_p2, previous_reward_p2, done))
             if (i + 1) % 10 == 0:
                 print('Episode {},  The memory size is {} '.format(i, len(agent_p2.memory.storage)))
             if len(agent_p2.memory.storage) >= 500 - 1:
-                agent_p1.update(10)
+                # agent_p1.update(10)
                 agent_p2.update(10)
 
             if done:
@@ -102,18 +102,18 @@ while fields.update_proc():
                 keymgr.send_z()
                 break
             if i % 500 == 0:
-                agent_p1.save(pre_model_path)
+                # agent_p1.save(pre_model_path)
                 agent_p2.save(model_path)
 
             previous_state = state
-            previous_action_p1 = action_p1
-            previous_reward_p1 = reward_p1
+            # previous_action_p1 = action_p1
+            # previous_reward_p1 = reward_p1
             previous_action_p2 = action_p2
             previous_reward_p2 = reward_p2
             ep_r_p1 += reward_p1
             ep_r_p2 += reward_p2
             i += 1
-            keymgr.sendkeys(1, action_p1, frame['p1_dir'])
+            # keymgr.sendkeys(1, action_p1, frame['p1_dir'])
 
             keymgr.sendkeys(2, action_p2, frame['p2_dir'])
             end_time_2 = time.time()

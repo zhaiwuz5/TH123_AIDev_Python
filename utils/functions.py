@@ -163,13 +163,13 @@ class Position:
 
 
 class FrameData:
-    def __init__(self, frameflag, current_sequence, elapsed_in_subseq):
-        self.frameflag = frameflag
-        self.current_sequence = current_sequence
-        self.elapsed_in_subseq = elapsed_in_subseq
+    def __init__(self, damage, spirit_damage):
+        self.damage = damage
+        self.spirit_damage = spirit_damage
+
 
     def __str__(self):
-        return f'FrameData(frameflag={self.frameflag}, current_sequence={self.current_sequence}, elapsed_in_subseq={self.elapsed_in_subseq})'
+        return f'FrameData(frameflag={self.frameflag}, current_sequence={self.damage}, elapsed_in_subseq={self.spirit_damage})'
 
 
 class Player:
@@ -186,8 +186,10 @@ class Player:
         self.frameflag = None
         self.current_sequence = None
         self.elapsed_in_subseq = None
+        self.framedatas = None
         self.health = None
         self.spirit = None
+        self.damage_limit = None
         self.untech = None
         self.card = None
 
@@ -295,6 +297,13 @@ def update_keys(player):
     )
 
 
+def update_framedata(player):
+    player.framedatas = FrameData(
+        fields.get_short(player.framedata, fields.FF_DAMAGE),
+        fields.get_short(player.framedata, fields.FF_SPIRIT_DAMAGE)
+    )
+
+
 # 获取玩家信息的核心函数
 def update_playerinfo(player, add_bmgr_px):
     '''
@@ -315,11 +324,14 @@ def update_playerinfo(player, add_bmgr_px):
 
     player.health = fields.get_short(player.p, fields.CF_CURRENT_HEALTH)
     player.spirit = fields.get_short(player.p, fields.CF_CURRENT_SPIRIT)
+    player.damage_limit = fields.get_short(player.p, fields.CF_DAMAGE_LIMIT)
 
     player.framedata = fields.get_ptr(player.p, fields.CF_CURRENT_FRAME_DATA)
+    update_framedata(player)
     player.frameflag = fields.get_int(player.framedata, fields.FF_FFLAGS)
     player.current_sequence = fields.get_short(player.framedata, fields.CF_CURRENT_SEQ)
     player.elapsed_in_subseq = fields.get_short(player.framedata, fields.CF_ELAPSED_IN_SUBSEQ)
+
 
     player.card = int.from_bytes(fields.get_char(player.p, fields.CF_CARD_SLOTS), byteorder='little')
     player.untech = fields.get_short(player.p, fields.CF_UNTECH)

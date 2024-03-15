@@ -46,8 +46,11 @@ def to_dict(player1, player2):
 
         "p1_hp": player1.health,
         "p1_spirit": player1.spirit,
+        "p1_damage_limit": player1.damage_limit,
         "p1_untech": player1.untech,
         "p1_card": player1.card,
+        "p1_damage": player1.framedatas.damage,
+        "p1_spirit_damage": player1.framedatas.spirit_damage,
 
         "p2_x": player2.position.x,
         "p2_y": player2.position.y,
@@ -70,8 +73,11 @@ def to_dict(player1, player2):
 
         "p2_hp": player2.health,
         "p2_spirit": player2.spirit,
+        "p2_damage_limit": player2.damage_limit,
         "p2_untech": player2.untech,
-        "p2_card": player2.card
+        "p2_card": player2.card,
+        "p2_damage": player2.framedatas.damage,
+        "p2_spirit_damage": player2.framedatas.spirit_damage,
     }
 
 
